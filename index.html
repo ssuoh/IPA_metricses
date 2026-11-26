@@ -1,0 +1,1432 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IPA定量指標の適用範囲</title>
+<meta name="author" content="suo(SHIFT)">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=BIZ+UDPMincho:wght@400;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* 設計メモ: 白書の「帳票」を下敷きにした1カラム。罫線と節番号で構造を示し、色は割合を示す緑1色と判定の3色だけ。 */
+:root {
+  color-scheme: light;
+  --paper: #f2f6f3;
+  --surface: #ffffff;
+  --ink: #13211a;
+  --ink-2: #53655b;
+  --line: #d2dcd5;
+  --accent: #136b45;
+  --accent-wash: #e3f2e9;
+  --bar: #23915f;
+  --track: #e3ebe5;
+  --good: #0aac23;
+  --warn: #fbb315;
+  --crit: #dc3c3d;
+  --f-display: "BIZ UDPMincho", "Hiragino Mincho ProN", "Yu Mincho", serif;
+  --f-body: "BIZ UDPGothic", "Hiragino Sans", "Yu Gothic UI", "Meiryo", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --paper: #0b120e;
+    --surface: #141d18;
+    --ink: #e7efea;
+    --ink-2: #9aaba1;
+    --line: #29362e;
+    --accent: #7fd3a8;
+    --accent-wash: #173024;
+    --bar: #3cb37c;
+    --track: #232f28;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #0b120e;
+  --surface: #141d18;
+  --ink: #e7efea;
+  --ink-2: #9aaba1;
+  --line: #29362e;
+  --accent: #7fd3a8;
+  --accent-wash: #173024;
+  --bar: #3cb37c;
+  --track: #232f28;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: 15px;
+  line-height: 1.75;
+}
+a { color: var(--accent); }
+button, select, input { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+
+.wrap { max-width: 780px; margin: 0 auto; padding: 0 16px 64px; }
+
+/* 見出し帯 */
+.mast { padding: 20px 0 12px; display: flex; flex-direction: column; gap: 2px; }
+.mast .kicker { font-family: var(--f-mono); font-size: 11px; letter-spacing: .06em; color: var(--ink-2); }
+.mast .name { font-family: var(--f-display); font-weight: 700; font-size: 20px; line-height: 1.4; }
+.mast .by { font-size: 13px; color: var(--ink-2); }
+.mast .by b { color: var(--ink); }
+.foot { margin-top: 40px; padding-top: 12px; border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-2); }
+.foot b { color: var(--ink); }
+
+/* ナビ */
+.nav {
+  position: sticky; top: 0; z-index: 5;
+  background: var(--paper);
+  border-top: 2px solid var(--ink);
+  border-bottom: 1px solid var(--line);
+  display: grid; grid-template-columns: repeat(5, 1fr);
+}
+.nav a {
+  text-decoration: none; color: var(--ink-2);
+  text-align: center; padding: 10px 2px 9px; font-size: 12.5px; font-weight: 700; white-space: nowrap;
+  border-bottom: 3px solid transparent; margin-bottom: -1px;
+}
+.nav a[aria-current="page"] { color: var(--ink); border-bottom-color: var(--accent); }
+
+.view { display: flex; flex-direction: column; gap: 24px; padding-top: 24px; }
+.view[hidden] { display: none; }
+
+h1, h2, h3 { margin: 0; text-wrap: balance; word-break: auto-phrase; }
+h1 { font-family: var(--f-display); font-weight: 700; font-size: clamp(24px, 6.4vw, 34px); line-height: 1.35; }
+h2 { font-family: var(--f-display); font-weight: 700; font-size: 19px; line-height: 1.45; }
+h3 { font-size: 15px; font-weight: 700; line-height: 1.5; }
+p { margin: 0; }
+.lead { font-size: 16px; max-width: 34em; }
+.muted { color: var(--ink-2); }
+.small { font-size: 13px; line-height: 1.65; }
+
+/* 全体像 */
+.hero { display: flex; flex-direction: column; gap: 14px; }
+.strips { display: flex; flex-direction: column; gap: 14px; background: var(--surface); border: 1px solid var(--line); padding: 18px 16px; }
+.strip-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.strip-head .lbl { font-weight: 700; }
+.strip-head .big { font-family: var(--f-mono); font-size: 22px; font-weight: 500; line-height: 1.2; }
+.strip-track { height: 12px; background: var(--track); border-radius: 0 4px 4px 0; overflow: hidden; margin-top: 6px; }
+.strip-fill { height: 100%; background: var(--bar); border-radius: 0 4px 4px 0; }
+.strip-src { font-size: 12px; color: var(--ink-2); margin-top: 4px; }
+
+.facts { display: grid; grid-template-columns: repeat(2, 1fr); border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+.facts div { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 10px 12px; background: var(--surface); }
+.facts dt { font-size: 12px; color: var(--ink-2); }
+.facts dd { margin: 0; font-weight: 700; }
+dl { margin: 0; }
+@media (min-width: 620px) { .facts { grid-template-columns: repeat(4, 1fr); } }
+
+.index { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.index li { border-bottom: 1px solid var(--line); }
+.index button {
+  width: 100%; background: none; border: 0; padding: 12px 2px; text-align: left; cursor: pointer;
+  display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; align-items: baseline;
+}
+.index .t { font-weight: 700; }
+.index .d { grid-column: 1; font-size: 13px; color: var(--ink-2); line-height: 1.6; }
+.index .go { grid-row: 1 / span 2; grid-column: 2; align-self: center; color: var(--accent); font-family: var(--f-mono); }
+.cta {
+  display: flex; flex-direction: column; gap: 8px; align-items: flex-start;
+  background: var(--accent-wash); border-left: 4px solid var(--accent); padding: 16px;
+}
+.btn {
+  display: inline-block; background: var(--accent); color: var(--surface); border: 0; border-radius: 3px;
+  padding: 9px 16px; font-weight: 700; cursor: pointer; text-decoration: none;
+}
+.btn.ghost { background: none; color: var(--accent); border: 1px solid var(--accent); }
+
+/* 分類軸 */
+.tools { display: flex; flex-direction: column; gap: 10px; }
+.search { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 3px; background: var(--surface); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  border: 1px solid var(--line); background: var(--surface); border-radius: 999px;
+  padding: 4px 12px; font-size: 13px; cursor: pointer;
+}
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.count { font-size: 13px; color: var(--ink-2); }
+
+.axis { background: var(--surface); border: 1px solid var(--line); border-top: 2px solid var(--ink); }
+.axis-head { padding: 14px 16px 10px; display: flex; flex-direction: column; gap: 4px; border-bottom: 1px solid var(--line); }
+.axis-meta { display: flex; flex-wrap: wrap; gap: 4px 10px; font-family: var(--f-mono); font-size: 11.5px; color: var(--ink-2); line-height: 1.5; }
+.axis-meta .ed { color: var(--ink); border: 1px solid var(--line); padding: 0 6px; border-radius: 2px; }
+.axis-body { padding: 4px 16px 12px; }
+.axis-note { padding: 10px 16px 14px; border-top: 1px solid var(--line); font-size: 13px; line-height: 1.65; color: var(--ink-2); }
+
+.row { padding: 9px 0; border-bottom: 1px solid var(--line); }
+.row:last-child { border-bottom: 0; }
+details.row > summary { list-style: none; cursor: pointer; }
+details.row > summary::-webkit-details-marker { display: none; }
+.row-head { display: flex; align-items: baseline; gap: 8px; }
+.row-head .nm { flex: 1 1 auto; min-width: 0; font-weight: 700; line-height: 1.5; }
+.row-head .val { flex: none; font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.row-head .caret { flex: none; width: 14px; color: var(--ink-2); font-family: var(--f-mono); font-size: 12px; }
+details[open] > summary .caret { transform: rotate(90deg); display: inline-block; }
+.tag { display: inline-block; font-size: 11.5px; font-weight: 400; color: var(--ink-2); border: 1px solid var(--line); border-radius: 2px; padding: 0 5px; margin-left: 6px; line-height: 1.5; white-space: nowrap; }
+.track { height: 8px; background: var(--track); margin-top: 5px; border-radius: 0 4px 4px 0; }
+.fill { height: 100%; min-width: 2px; background: var(--bar); border-radius: 0 4px 4px 0; }
+.row-body { padding: 8px 0 2px 0; font-size: 13.5px; line-height: 1.7; color: var(--ink-2); }
+.row-body .num { color: var(--ink); }
+.scale { display: flex; justify-content: space-between; font-family: var(--f-mono); font-size: 10.5px; color: var(--ink-2); padding-top: 4px; }
+
+.tbl-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; line-height: 1.6; }
+th, td { text-align: left; vertical-align: top; padding: 8px 10px 8px 0; border-bottom: 1px solid var(--line); }
+th { font-size: 12px; color: var(--ink-2); font-weight: 400; white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td:first-child { font-weight: 700; min-width: 7.5em; }
+
+.src-card { padding: 12px 0; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 2px; }
+.src-card:last-child { border-bottom: 0; }
+.empty { padding: 24px 16px; text-align: center; color: var(--ink-2); background: var(--surface); border: 1px dashed var(--line); }
+
+/* 案件チェック */
+.form { display: grid; grid-template-columns: 1fr; gap: 12px; background: var(--surface); border: 1px solid var(--line); border-top: 2px solid var(--ink); padding: 16px; }
+@media (min-width: 620px) { .form { grid-template-columns: 1fr 1fr; } }
+.field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.field label { font-size: 13px; font-weight: 700; }
+.field select { width: 100%; padding: 9px 10px; border: 1px solid var(--line); border-radius: 3px; background: var(--paper); }
+
+.verdict { background: var(--surface); border: 1px solid var(--line); border-left: 6px solid var(--ink-2); padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.verdict[data-s="ok"] { border-left-color: var(--good); }
+.verdict[data-s="warn"] { border-left-color: var(--warn); }
+.verdict[data-s="ng"] { border-left-color: var(--crit); }
+.verdict h2 { font-size: 18px; }
+.kv { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; font-size: 14px; }
+.kv dt { color: var(--ink-2); white-space: nowrap; }
+.kv dd { margin: 0; font-weight: 700; }
+.tally { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 700; border: 1px solid var(--line); border-radius: 999px; padding: 1px 10px 1px 6px; white-space: nowrap; background: var(--surface); }
+.pill .ic { width: 16px; height: 16px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-family: var(--f-mono); font-size: 11px; line-height: 1; color: #ffffff; }
+.pill[data-s="ok"] .ic { background: var(--good); }
+.pill[data-s="warn"] .ic { background: var(--warn); color: #0b0b0b; }
+.pill[data-s="ng"] .ic { background: var(--crit); }
+
+.results { background: var(--surface); border: 1px solid var(--line); }
+.res { padding: 12px 16px; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 4px; }
+.res:last-child { border-bottom: 0; }
+.res-head { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+.res-head .ax { font-size: 12px; color: var(--ink-2); flex: 1 0 100%; }
+.res-head .pick { font-weight: 700; flex: 1 1 auto; min-width: 0; }
+.res .share { font-size: 12.5px; color: var(--ink-2); }
+.res .msg { font-size: 14px; line-height: 1.7; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.toast { font-size: 13px; color: var(--ink-2); }
+
+/* 注意と出典 */
+.notes { list-style: none; margin: 0; padding: 0; counter-reset: n; border-top: 1px solid var(--line); }
+.notes li { counter-increment: n; display: grid; grid-template-columns: 2.2em 1fr; gap: 0 4px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.notes li::before { content: counter(n, decimal-leading-zero); font-family: var(--f-mono); color: var(--ink-2); font-size: 13px; padding-top: 2px; }
+.notes b { display: block; }
+.links { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.box { background: var(--surface); border: 1px solid var(--line); padding: 14px 16px; }
+
+/* 使い方 */
+.howto { display: flex; flex-direction: column; gap: 12px; }
+.steps .step-go { display: block; margin-top: 4px; font-weight: 700; text-decoration: none; }
+.steps .step-go:hover { text-decoration: underline; }
+.gloss { margin: 6px 0 0; display: grid; grid-template-columns: 1fr; gap: 2px; }
+.gloss dt { font-weight: 700; margin-top: 8px; }
+.gloss dt:first-child { margin-top: 0; }
+.gloss dd { margin: 0; color: var(--ink-2); }
+.tips { margin: 6px 0 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 4px; color: var(--ink-2); }
+
+/* 基準値 */
+.seg-row { display: flex; flex-direction: column; gap: 4px; }
+.seg-lbl { font-size: 13px; font-weight: 700; }
+.bgrid { display: flex; flex-direction: column; gap: 16px; }
+.bcard { background: var(--surface); border: 1px solid var(--line); border-top: 2px solid var(--ink); padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+.bnums { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.bnums div { display: flex; flex-direction: column; min-width: 0; }
+.bnums .k { font-size: 12px; color: var(--ink-2); }
+.bnums .v { font-family: var(--f-mono); font-variant-numeric: tabular-nums; font-size: 17px; line-height: 1.3; overflow-wrap: anywhere; }
+.bnums .mid .v { font-size: 22px; font-weight: 500; }
+.bnums .mid .k { color: var(--ink); font-weight: 700; }
+.range { position: relative; height: 22px; }
+.r-track { position: absolute; left: 0; right: 0; top: 7px; height: 8px; background: var(--track); border-radius: 0 4px 4px 0; }
+.r-band { position: absolute; top: 7px; height: 8px; background: var(--bar); border-radius: 2px; }
+.r-med { position: absolute; top: 2px; width: 3px; height: 18px; margin-left: -1.5px; background: var(--ink); box-shadow: 0 0 0 2px var(--surface); }
+.r-you { position: absolute; top: 4px; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%; background: var(--surface); border: 4px solid var(--ink); box-shadow: 0 0 0 2px var(--surface); }
+.r-axis { display: flex; justify-content: space-between; font-family: var(--f-mono); font-size: 10.5px; color: var(--ink-2); }
+.legend { font-size: 12px; color: var(--ink-2); line-height: 1.6; }
+.you-line { font-size: 14px; line-height: 1.6; }
+.you-line .num { font-weight: 500; }
+.calc { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; }
+.calc .field input { width: 100%; padding: 9px 10px; border: 1px solid var(--line); border-radius: 3px; background: var(--paper); font-family: var(--f-mono); }
+.calc .field label { font-size: 12.5px; line-height: 1.4; }
+.reading { border-left: 4px solid var(--accent); background: var(--accent-wash); padding: 12px 14px; font-size: 14px; line-height: 1.7; }
+.reading b { display: block; font-size: 12.5px; color: var(--ink-2); font-weight: 400; }
+details.fold > summary { cursor: pointer; font-weight: 700; }
+details.fold[open] > summary { margin-bottom: 10px; }
+td.n, th.n { text-align: right; font-family: var(--f-mono); font-variant-numeric: tabular-nums; white-space: nowrap; padding-left: 10px; }
+td.n { font-weight: 400; }
+tr.on td { background: var(--accent-wash); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .fill, .strip-fill { transition: width .35s ease; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="mast">
+    <span class="kicker">IPA ソフトウェア開発分析データ集2022 ほか</span>
+    <span class="name">IPA定量指標の適用範囲</span>
+    <span class="by">powered by <b>suo(SHIFT)</b></span>
+  </header>
+
+  <nav class="nav" aria-label="表示の切り替え">
+    <a href="#overview" data-view="overview">全体像</a>
+    <a href="#axes" data-view="axes">分類軸</a>
+    <a href="#bench" data-view="bench">基準値</a>
+    <a href="#fit" data-view="fit">チェック</a>
+    <a href="#notes" data-view="notes">注意</a>
+  </nav>
+
+  <!-- 全体像 -->
+  <main>
+  <section class="view" id="view-overview">
+    <div class="hero">
+      <h1>IPAの定量指標は、どんな開発の実績値か</h1>
+      <p class="lead">ベンダが受託した、ウォーターフォール型の業務アプリケーション開発です。母集団のほとんどがこの3つの条件に当てはまります。</p>
+    </div>
+
+    <div class="strips" id="strips"></div>
+
+    <dl class="facts">
+      <div><dt>データ提供</dt><dd>ベンダ <span class="num">35</span>社</dd></div>
+      <div><dt>累計</dt><dd><span class="num">5,546</span>件</dd></div>
+      <div><dt>統計値の母集団</dt><dd><span class="num">1,479</span>件<br><span class="small muted" style="font-weight:400">2016〜2021年度</span></dd></div>
+      <div><dt>更新</dt><dd>続刊なし<br><span class="small muted" style="font-weight:400">2022年版が最終</span></dd></div>
+    </dl>
+
+    <section class="howto" aria-labelledby="howto-h">
+      <h2 id="howto-h">使い方</h2>
+      <p class="small muted">上のタブで5つの画面を切り替えます。次の順に見ると、自分の案件に使える基準値まで迷わずたどり着けます。</p>
+      <ol class="notes steps">
+        <li><div><b>全体像で前提をつかむ</b>この画面です。IPAの値がどんな開発の実績なのかを確認します。</div></li>
+        <li><div><b>チェックで案件を判定する</b>開発種別や言語など8項目を選ぶと、IPAの値を基準に使えるか、どの区分を参照すればよいかが出ます。結果はコピーして報告書に貼れます。<a class="step-go" href="#fit">チェックを開く →</a></div></li>
+        <li><div><b>基準値で実際の値を見る</b>規模の尺度と開発種別を選ぶと、結合テストのテストケース密度や検出バグ密度が表示されます。開発規模と件数を入れると、自分の値がどの位置にあるかが分かります。<a class="step-go" href="#bench">基準値を開く →</a></div></li>
+        <li><div><b>分類軸で定義を確かめる</b>区分の定義と、母集団に占める割合を調べます。用語で絞り込めます。行を押すと定義と件数が開きます。<a class="step-go" href="#axes">分類軸を開く →</a></div></li>
+        <li><div><b>注意で使う前の確認をする</b>当てはめるときの注意点と、原典へのリンクがあります。正式な基準にする前に、原典の表で値を確認してください。<a class="step-go" href="#notes">注意を開く →</a></div></li>
+      </ol>
+
+      <div class="box small">
+        <b>用語</b>
+        <dl class="gloss">
+          <dt>P25、中央値、P75</dt><dd>値を小さい順に並べたとき、下から25%、50%、75%の位置にある値です。P25〜P75の範囲に全体の半分のプロジェクトが入ります。</dd>
+          <dt>KSLOC</dt><dd>ソースコード1,000行のことです。コメント行と空行は数えません。</dd>
+          <dt>FP、KFP</dt><dd>FPは機能の量で測るファンクションポイントです。KFPは1,000FPです。</dd>
+          <dt>現象数、原因数</dt><dd>現象数は、テストで見つかった不具合の事象の数です。原因数は、それを根本原因ごとにまとめて数えた数です。</dd>
+          <dt>改良開発</dt><dd>改修・保守と拡張をまとめた区分です。規模は追加、変更、削除した行の合計で、もとのシステムの規模は含みません。</dd>
+        </dl>
+      </div>
+
+      <div class="box small">
+        <b>知っておくと便利なこと</b>
+        <ul class="tips">
+          <li>チェックで選んだ内容と、基準値に入れた数値は、この端末のブラウザに残ります。ほかの人には見えません。</li>
+          <li>チェックの結果にある「この区分の結合テスト基準値を見る」を押すと、該当する開発種別の基準値に移動します。</li>
+          <li>分類軸の棒は、すべて0〜100%の同じ目盛りです。軸どうしで長さを比べられます。</li>
+        </ul>
+      </div>
+    </section>
+
+    <div>
+      <h2>分類軸から調べる</h2>
+      <p class="small muted" style="margin:4px 0 10px">各軸の区分、定義、母集団に占める割合を確認できます。</p>
+      <ul class="index" id="index"></ul>
+    </div>
+
+  </section>
+
+  <!-- 分類軸 -->
+  <section class="view" id="view-axes" hidden>
+    <div>
+      <h1>分類軸</h1>
+      <p class="muted" style="margin-top:6px">行を押すと定義と件数が開きます。棒は母集団に占める割合で、すべて0〜100%の同じ目盛りです。</p>
+    </div>
+    <div class="tools">
+      <input class="search" id="q" type="search" placeholder="用語で絞り込む(例:C#、再開発)" aria-label="分類軸を絞り込む">
+      <div class="chips" id="chips" role="group" aria-label="分類のグループ"></div>
+      <div class="count" id="count" aria-live="polite"></div>
+    </div>
+    <div id="axes" style="display:flex;flex-direction:column;gap:20px"></div>
+  </section>
+
+  <!-- 基準値 -->
+  <section class="view" id="view-bench" hidden>
+    <div>
+      <h1>結合テストの基準値</h1>
+      <p class="muted" style="margin-top:6px">分析データ集2022に載っている実績値です。規模の尺度と開発種別を選ぶと切り替わります。対象は直近6年(2016〜2021年度)のプロジェクトです。</p>
+    </div>
+    <div class="tools">
+      <div class="seg-row"><span class="seg-lbl">規模の尺度</span><div class="chips" id="b-size" role="group" aria-label="規模の尺度"></div></div>
+      <div class="seg-row"><span class="seg-lbl">開発種別</span><div class="chips" id="b-type" role="group" aria-label="開発種別"></div></div>
+      <div class="count" id="b-meta" aria-live="polite"></div>
+    </div>
+
+    <div class="box" style="display:flex;flex-direction:column;gap:10px">
+      <h2>自分の値と比べる</h2>
+      <p class="small muted">規模と件数を入れると密度を計算し、下の各指標に入力値の位置を示します。入力はこの端末に残ります。</p>
+      <form class="calc" id="b-calc" autocomplete="off">
+        <div class="field"><label for="c-size" id="c-size-lbl">開発規模(KSLOC)</label><input id="c-size" type="number" inputmode="decimal" min="0" step="any" placeholder="例:25"></div>
+        <div class="field"><label for="c-tc">結合テストのテストケース数</label><input id="c-tc" type="number" inputmode="decimal" min="0" step="any" placeholder="例:1800"></div>
+        <div class="field"><label for="c-bp">検出バグ数(現象数)</label><input id="c-bp" type="number" inputmode="decimal" min="0" step="any" placeholder="例:30"></div>
+        <div class="field"><label for="c-bc">検出バグ数(原因数)</label><input id="c-bc" type="number" inputmode="decimal" min="0" step="any" placeholder="例:26"></div>
+      </form>
+      <div id="b-reading"></div>
+    </div>
+
+    <div class="bgrid" id="b-cards"></div>
+
+    <details class="box fold">
+      <summary>総合テスト(ベンダ確認)の値も見る</summary>
+      <div class="tbl-wrap" id="b-st"></div>
+    </details>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <h2>結合テストが占める工数と工期の割合</h2>
+      <p class="small muted">開発5工程(基本設計から総合テスト(ベンダ確認)まで)の合計を100%としたときの、結合テストの割合です。各欄の2行目はP25〜P75の範囲です。表A3-3-5〜A3-3-10。</p>
+      <div class="box"><div class="tbl-wrap" id="b-phase"></div></div>
+      <details class="box fold">
+        <summary>5工程すべての中央値を見る</summary>
+        <div class="tbl-wrap" id="b-phase-all"></div>
+      </details>
+    </div>
+
+    <div class="box small">
+      <b>読むときの注意</b><br>
+      平均値は極端に大きい値に引っ張られています(例:SLOC規模、全開発種別のテストケース密度は中央値51.7に対して平均484.9)。基準には中央値とP25〜P75の範囲を使ってください。テストケースの数え方は各社で異なります。現象数と原因数は、提出しているプロジェクトの重なりが少ないため、両者の値をそのまま比べることはできません。改良開発の規模は追加、変更、削除の合計で、母体を含みません。
+    </div>
+  </section>
+
+  <!-- 案件チェック -->
+  <section class="view" id="view-fit" hidden>
+    <div>
+      <h1>案件チェック</h1>
+      <p class="muted" style="margin-top:6px">案件の属性を選ぶと、その場で判定が変わります。初期表示は入力例です。選んだ内容はこの端末に残ります。</p>
+    </div>
+    <form class="form" id="form" autocomplete="off"></form>
+    <div class="verdict" id="verdict" aria-live="polite"></div>
+    <div class="results" id="results"></div>
+    <div class="actions">
+      <button class="btn ghost" type="button" id="copy">判定結果をコピー</button>
+      <button class="btn ghost" type="button" id="reset">入力例に戻す</button>
+      <span class="toast" id="toast" role="status"></span>
+    </div>
+    <p class="small muted">判定は、各区分が母集団に占める割合と、資料に書かれた分析対象の条件をもとにした目安です。割合が小さい区分は、値はあっても件数が少なく、ばらつきが大きくなります。</p>
+  </section>
+
+  <!-- 注意と出典 -->
+  <section class="view" id="view-notes" hidden>
+    <div>
+      <h1>当てはめるときの注意</h1>
+    </div>
+    <ol class="notes">
+      <li><div><b>アジャイル、反復型には使えない</b>反復型は直近6年で29件(2.1%)だけです。アジャイルという区分は選択肢にありません。</div></li>
+      <li><div><b>ソースを変更するカスタマイズは「改良開発」で読む</b>「パッケージ利用開発」はソースを変更しない開発を指します。ソースに手を入れる場合は、新規部分の比率で改修・保守(約10%未満)か拡張(約10〜90%)に当たります。資料の定義からの解釈です。</div></li>
+      <li><div><b>テストケース密度は絶対値で比べない</b>テストケースの数え方は各社の判断に任されています。自社の過去実績と並べて使うのが安全です。</div></li>
+      <li><div><b>改良開発の規模に母体を含めない</b>改良開発のSLOCは追加、変更、削除の合計です。母体を含めた規模で密度を計算すると、IPAの値より低く出ます。</div></li>
+      <li><div><b>データは2021年度まで</b>事業終了により続刊の予定はありません。生成AIの利用など、それ以降の開発環境の変化は反映されていません。</div></li>
+      <li><div><b>業種別の値があるのは3業種だけ</b>金融・保険業、情報通信業、製造業には別冊があります。ほかの業種は全業種の値を使うことになり、件数の多い業種の影響を受けます。</div></li>
+    </ol>
+
+    <div>
+      <h2>出典</h2>
+      <ul class="links" style="margin-top:10px">
+        <li><a href="https://www.ipa.go.jp/digital/software-survey/metrics/metrics2022.html">ソフトウェア開発分析データ集2022(IPA、公開ページ)</a><br><span class="small muted">本編、業種編3種、サマリー版、グラフデータの入手先</span></li>
+        <li><a href="https://www.ipa.go.jp/files/000102171.pdf">ソフトウェア開発分析データ集2022 本編(PDF)</a></li>
+        <li><a href="https://www.ipa.go.jp/files/000069381.pdf">ソフトウェア開発データ白書2018-2019(PDF)</a></li>
+        <li><a href="https://www.ipa.go.jp/archive/digital/iot-en-ci/teiryou/kumikomi-hakusho2019.html">組込みソフトウェア開発データ白書2019(IPA、公開ページ)</a></li>
+      </ul>
+    </div>
+
+    <div class="box small">
+      <b>このページの数値について</b><br>
+      割合と件数は、上記の資料から2026年11月に抜き出して整理したものです。「2022」の表示がある軸は分析データ集2022(直近6年、2016〜2021年度)、「白書2018-19」の表示がある軸はデータ白書2018-2019(近年6年間)の値です。版が違う軸どうしは母集団が異なります。<br><br>結合テストの基準値は、分析データ集2022の表5-1-1〜5-1-4、表5-2-1〜5-2-4、表A3-3-5〜A3-3-10から転記しました。結合テストの行のN、P25、中央値、P75は、2回の読み取りで一致を確認しています。最小、最大、平均、標準偏差、総合テストの行、工程別の比率は1回の読み取りです。正式な基準として使う前に、必ず原典の表で確認してください。
+    </div>
+
+    <div class="box small">
+      <b>このページについて</b><br>
+      powered by suo(SHIFT)<br>
+      IPA(独立行政法人情報処理推進機構)の公開資料をもとに作成した早見ページです。IPAが作成、監修したものではありません。
+    </div>
+  </section>
+  </main>
+  <footer class="foot">powered by <b>suo(SHIFT)</b> ・ 出典 IPA「ソフトウェア開発分析データ集2022」ほか</footer>
+</div>
+
+<script>
+/* ===== データ ===== */
+var ED22 = '2022', ED18 = '白書2018-19';
+
+var GROUPS = [
+  { id: 'source', name: '資料の系統', desc: '4つの資料と、それぞれの母集団' },
+  { id: 'type',   name: 'プロジェクト種別', desc: '新規開発、改修・保守、拡張、再開発などの定義と割合' },
+  { id: 'method', name: '開発手法', desc: 'ライフサイクルモデル、開発5工程、方法論' },
+  { id: 'biz',    name: '業務の態様', desc: '契約形態、業種、対象業務、システム種別、重要度' },
+  { id: 'tech',   name: '技術要素', desc: '開発言語、アーキテクチャ、プラットフォーム、DBMS' },
+  { id: 'scale',  name: '規模と指標', desc: '規模の尺度、規模帯、テスト指標の定義と示され方' }
+];
+
+var AXES = [
+  { id: 'sources', group: 'source', kind: 'cards', title: '資料の系統', ed: '', ref: '',
+    cards: [
+      { name: 'ソフトウェア開発分析データ集2022', tag: '最新、最終版',
+        text: 'ベンダ35社、累計5,546件。主な統計値は直近6年(2016〜2021年度)の1,479件から算出。事業終了のため続刊の予定なし。' },
+      { name: '同 業種編(金融・保険業、情報通信業、製造業)', tag: '別冊3種',
+        text: '件数の多い3業種について、本編と同じ項目を業種ごとに算出。' },
+      { name: 'ソフトウェア開発データ白書2018-2019', tag: '旧版',
+        text: '34社、累計4,564件。統計値は近年6年間。国内のエンタプライズ系(業務システム)開発が対象。分類軸の説明が最も詳しい。' },
+      { name: '組込みソフトウェア開発データ白書2019', tag: '別の母集団',
+        text: '組込み製品の開発が対象で、累計599件。2017年版では改良(派生)開発が93%を占め、C言語とC++に絞って分析。' }
+    ] },
+
+  { id: 'ptype', group: 'type', kind: 'bars', title: '開発プロジェクトの種別', ed: ED22, ref: '1.2.1 / 項目103', n: 1479,
+    items: [
+      { name: '改修・保守', pct: 51.5, count: 761, tag: '分析区分:改良開発', def: '運用フェーズでベースシステムを改修する開発。新規部分は開発部分の約10%未満。' },
+      { name: '新規開発', pct: 29.1, count: 430, tag: '分析区分:新規開発', def: '既存のベースシステムがなく、新たに開発するもの。ベースがあっても新規部分が約90%以上なら新規開発として扱う。' },
+      { name: '拡張', pct: 8.3, count: 123, tag: '分析区分:改良開発', def: 'ベースシステムに機能追加を伴う開発。新規部分は約10〜90%。' },
+      { name: '再開発', pct: 7.2, count: 107, tag: '分析区分:再開発', def: '既存システムを、機能仕様をほぼ変えずに作り直すもの。リプレース、モダナイゼーションを含む。' },
+      { name: 'パッケージ利用開発', pct: 3.2, count: 48, tag: '旧版で分析対象外', def: '既製のパッケージソフトを利用し、そのソースコードは変更しない開発。' },
+      { name: 'OSS含む流用開発', pct: 0.7, count: 10, tag: '旧版で分析対象外', def: '他システムやコミュニティから、ソースコードの形で流用して開発するもの。' }
+    ],
+    note: '白書2018-2019の分析では、改修・保守と拡張を「改良開発」にまとめています。パッケージ利用開発とOSS含む流用開発は件数が少ないため分析対象から外されました。指標値は「新規開発」「改良開発」「再開発」の3区分で読みます。' },
+
+  { id: 'lifecycle', group: 'method', kind: 'bars', title: '開発ライフサイクルモデル', ed: ED22, ref: '1.3.1 / 項目401', n: 1377,
+    items: [
+      { name: 'ウォーターフォール', pct: 97.2, count: 1339 },
+      { name: '反復型', pct: 2.1, count: 29 },
+      { name: 'その他', pct: 0.7, count: 9 }
+    ],
+    note: '選択肢はこの3つだけです。アジャイルという独立した区分はありません。' },
+
+  { id: 'process', group: 'method', kind: 'table', title: '開発5工程と共通フレーム(SLCP)の対応', ed: ED22, ref: 'A5.1.1',
+    cols: ['工程', '共通フレームでの作業', '開発5工程'],
+    rows: [
+      ['基本設計', 'システム方式設計、ソフトウェア方式設計', '含む'],
+      ['詳細設計', 'ソフトウェア詳細設計', '含む'],
+      ['製作', 'ソフトウェアコード作成及びテスト', '含む'],
+      ['結合テスト', 'ソフトウェア結合、システム結合', '含む'],
+      ['総合テスト(ベンダ確認)', 'ソフトウェア適格性確認テスト、システム適格性確認テスト', '含む'],
+      ['総合テスト(ユーザ確認)', 'ソフトウェア導入支援、受け入れ支援', '含まない']
+    ],
+    note: '分析に使われるのは、開発5工程がすべて揃ったプロジェクトです。単体テストは「製作」に含まれます(共通フレームの「コード作成及びテスト」に対応するため)。結合テストは、ソフトウェア結合とシステム結合の両方を指します。' },
+
+  { id: 'methodology', group: 'method', kind: 'bars', title: '開発方法論', ed: ED18, ref: '4.5',
+    items: [
+      { name: 'なし', pct: 37.4 },
+      { name: '構造化分析設計', pct: 25.7 },
+      { name: 'オブジェクト指向分析設計', pct: 20.5 },
+      { name: 'データ中心アプローチ(DOA)', pct: 11.7 },
+      { name: 'その他', pct: 4.7 }
+    ] },
+
+  { id: 'reuse', group: 'method', kind: 'bars', title: 'フレームワークと業務パッケージの利用', ed: ED18, ref: '4.4(2), 4.5',
+    items: [
+      { name: '開発フレームワークを利用', pct: 60.6, def: '開発フレームワークの利用が「有り」と回答したプロジェクトの割合。' },
+      { name: '業務パッケージを利用', pct: 16.8, def: '業務パッケージの利用が「有り」と回答したプロジェクトの割合。「無し」は83.2%。' }
+    ],
+    note: 'それぞれ別の質問への回答で、合計して100%になる内訳ではありません。' },
+
+  { id: 'form', group: 'biz', kind: 'bars', title: '開発プロジェクトの形態', ed: ED18, ref: '4.2(2) / 項目105',
+    items: [
+      { name: '受託開発', pct: 89.3 },
+      { name: '商用パッケージ開発', pct: 6.9 },
+      { name: 'インハウスユース', pct: 1.9, def: '自社で利用するシステムの開発。' },
+      { name: 'その他', pct: 1.4 },
+      { name: '実験研究試作', pct: 0.4 }
+    ],
+    note: '分析データ集2022でも受託開発は約89%です(A3.1.1)。受託開発の場合は作業場所(顧客先、自社、その他)も記録されます。' },
+
+  { id: 'industry', group: 'biz', kind: 'bars', title: '業種(大分類)', ed: ED22, ref: 'A3.1.4', n: 1479,
+    items: [
+      { name: 'K 金融・保険業', pct: 37.2, count: 550, tag: '業種編あり' },
+      { name: 'F 製造業', pct: 13.7, count: 202, tag: '業種編あり' },
+      { name: 'R 公務', pct: 12.6, count: 186 },
+      { name: 'H 情報通信業', pct: 10.0, count: 148, tag: '業種編あり' },
+      { name: 'J 卸売・小売業', pct: 6.8, count: 101 },
+      { name: 'I 運輸業', pct: 5.8, count: 86 },
+      { name: 'N 医療・福祉', pct: 3.2, count: 47 },
+      { name: 'G 電気・ガス・熱供給・水道業', pct: 3.1, count: 46 },
+      { name: 'S 分類不能', pct: 2.6, count: 38 },
+      { name: 'Q サービス業', pct: 2.1, count: 31 },
+      { name: 'O 教育・学習支援業', pct: 1.0, count: 15 },
+      { name: 'E 建設業', pct: 0.6, count: 9 },
+      { name: 'L 不動産業', pct: 0.6, count: 9 },
+      { name: 'P 複合サービス事業', pct: 0.4, count: 6 },
+      { name: 'A 農業', pct: 0.1, count: 2 },
+      { name: 'C 漁業', pct: 0.1, count: 1 },
+      { name: 'D 鉱業', pct: 0.1, count: 1 },
+      { name: 'M 飲食店・宿泊業', pct: 0.1, count: 1 }
+    ],
+    note: '業種は発注者側の業種です。B 林業は0件です。' },
+
+  { id: 'business', group: 'biz', kind: 'bars', title: '対象業務', ed: ED22, ref: 'A3.1.5', n: 1384,
+    items: [
+      { name: '営業・販売', pct: 16.0 },
+      { name: '管理一般', pct: 11.0 },
+      { name: '顧客管理', pct: 8.3 },
+      { name: '会計・経理', pct: 6.6 },
+      { name: '生産・物流', pct: 5.5 },
+      { name: 'その他', pct: 21.1, def: '選択肢の「その他」に回答したもの。' }
+    ],
+    note: '割合の大きい区分だけを載せています。残りの約31%は、ここにない業務区分です。白書2018-2019では20区分(a〜t)に分かれています。' },
+
+  { id: 'systype', group: 'biz', kind: 'bars', title: 'システム種別', ed: ED22, ref: 'A3.1.7',
+    items: [
+      { name: 'アプリケーションソフト', pct: 95.5 },
+      { name: 'システムソフト(ミドルウェア、OS)', pct: 2.4 },
+      { name: 'ツール類', pct: 1.4 },
+      { name: 'その他', pct: 0.5 },
+      { name: '開発環境ソフト', pct: 0.1 }
+    ] },
+
+  { id: 'proc', group: 'biz', kind: 'bars', title: '処理形態', ed: ED22, ref: 'A3.1.8', n: 667,
+    items: [
+      { name: '対話処理', pct: 37.9 },
+      { name: 'バッチ処理', pct: 30.4 },
+      { name: 'オンライントランザクション処理', pct: 28.5 },
+      { name: 'その他', pct: 3.1 }
+    ] },
+
+  { id: 'user', group: 'biz', kind: 'bars', title: '利用ユーザ', ed: ED22, ref: 'A3.1.6',
+    items: [
+      { name: '特定ユーザの利用', pct: 77.2 },
+      { name: '不特定ユーザの利用', pct: 22.8 }
+    ] },
+
+  { id: 'newness', group: 'biz', kind: 'bars', title: '新規性(該当する割合)', ed: ED18, ref: '4.2(4)〜(6)',
+    items: [
+      { name: '新技術を利用', pct: 9.3 },
+      { name: '新規顧客', pct: 8.6 },
+      { name: '新規の業種・業務', pct: 5.5 }
+    ],
+    note: 'それぞれ別の質問への回答で、合計して100%になる内訳ではありません。' },
+
+  { id: 'critical', group: 'biz', kind: 'table', title: '重要度の区分', ed: ED22, ref: '項目299, 項目512',
+    cols: ['区分', '定義', '割合(白書2018-19)'],
+    rows: [
+      ['重要インフラ Type I', '社会的影響がほとんどない', '53.5%'],
+      ['重要インフラ Type II', '社会的影響が限定される', '未転記'],
+      ['重要インフラ Type III', '社会的影響が極めて大きい', '未転記'],
+      ['重要インフラ Type IV', '人命に影響し、甚大な経済損失を生じうる', '2.0%'],
+      ['信頼性要求レベル', '故障の頻度、故障からの回復時間、データ修復などへの要求の厳しさ。極めて高い、高い、中位、低い、不明の5段階', '']
+    ] },
+
+  { id: 'lang', group: 'tech', kind: 'bars', title: '主開発言語(第1回答)', ed: ED22, ref: '表1-2-2',
+    items: [
+      { name: 'Java', pct: 42.4 },
+      { name: 'COBOL', pct: 16.3 },
+      { name: 'VB.NET', pct: 9.3 },
+      { name: 'C#', pct: 7.6 },
+      { name: 'C', pct: 5.6 }
+    ],
+    note: '上位5言語だけを載せています。残りの約19%の内訳は未転記です。C++はこの5言語に入っていません。' },
+
+  { id: 'arch', group: 'tech', kind: 'bars', title: 'アーキテクチャ', ed: ED22, ref: '表1-2-3',
+    items: [
+      { name: 'イントラネット/インターネット', pct: 48.6 },
+      { name: '3階層クライアント/サーバ', pct: 18.5 },
+      { name: 'メインフレーム', pct: 12.8 },
+      { name: '2階層クライアント/サーバ', pct: 12.5 },
+      { name: 'その他', pct: 4.2 },
+      { name: 'スタンドアロン', pct: 3.4 }
+    ] },
+
+  { id: 'platform', group: 'tech', kind: 'bars', title: '開発対象プラットフォーム', ed: ED22, ref: '表1-2-4',
+    items: [
+      { name: 'Linux系', pct: 30.7 },
+      { name: 'Windows(Server系)', pct: 29.9 },
+      { name: 'Windows(PC系)', pct: 15.8 },
+      { name: 'メインフレーム系', pct: 9.3 },
+      { name: 'UNIX系', pct: 8.3 },
+      { name: 'その他', pct: 6.0 }
+    ] },
+
+  { id: 'dbms', group: 'tech', kind: 'bars', title: 'DBMS', ed: ED22, ref: 'A3.1.9', n: 1229,
+    items: [
+      { name: 'Oracle', pct: 42.9 },
+      { name: 'SQL Server', pct: 14.5 },
+      { name: 'PostgreSQL', pct: 10.5 },
+      { name: 'その他DB', pct: 9.3 },
+      { name: 'DB2', pct: 7.9 },
+      { name: 'なし', pct: 7.6 },
+      { name: 'HiRDB', pct: 2.4 },
+      { name: 'MySQL', pct: 2.3 },
+      { name: 'IMS', pct: 1.3 }
+    ],
+    note: 'ここにない製品が約1%あります。' },
+
+  { id: 'measure', group: 'scale', kind: 'bars', title: '規模の尺度', ed: ED18, ref: '4.8',
+    items: [
+      { name: 'SLOCのみ', pct: 78.7 },
+      { name: 'FPとSLOCの両方', pct: 10.9 },
+      { name: 'FPのみ', pct: 10.4 }
+    ],
+    note: '分析データ集2022の累計では、実効SLOCの実績値があるのは3,698件、FPの実績値があるのは1,623件です(表1-1-1)。' },
+
+  { id: 'fpmethod', group: 'scale', kind: 'bars', title: 'FPの計測手法', ed: ED18, ref: '4.8',
+    items: [
+      { name: 'IFPUG', pct: 40.5 },
+      { name: 'その他', pct: 36.1 },
+      { name: 'NESMA概算', pct: 18.4 },
+      { name: 'SPR', pct: 5.0 }
+    ],
+    note: 'FPは調整前の値を使います。全開発種別の表では計測手法が混在しています。' },
+
+  { id: 'bands', group: 'scale', kind: 'table', title: '信頼性分析の規模帯', ed: ED22, ref: '2章, 3章',
+    cols: ['尺度と種別', '規模帯'],
+    rows: [
+      ['SLOC、新規開発', '40K未満 / 40〜100K / 100〜300K / 300K以上'],
+      ['SLOC、改良開発', '20K未満 / 20〜40K / 40〜100K / 100〜300K / 300K以上'],
+      ['FP、新規開発', '400未満 / 400〜1,000 / 1,000〜3,000 / 3,000以上'],
+      ['FP、改良開発', '200未満 / 200〜400 / 400〜1,000 / 1,000以上']
+    ],
+    note: '稼働後の発生不具合密度は、この規模帯ごとに示されます。' },
+
+  { id: 'metrics', group: 'scale', kind: 'table', title: '指標の定義と示され方', ed: ED22, ref: '1.2, 2章, 3章, 5章',
+    cols: ['項目', '内容', '節'],
+    rows: [
+      ['規模(SLOC)', '実効SLOC。コメント行と空行を除く。改良開発は追加、変更、削除の合計で、母体は原則として含めない', '1.2.5, A4.2.2'],
+      ['規模(FP)', '調整前のFP実績値', '1.2.6'],
+      ['テストケース数', '結合テスト、総合テスト(ベンダ確認)それぞれのケース数。数え方は各社の判断', '5章'],
+      ['検出バグ現象数', 'テストで検出した、ソフトウェアに起因する事象の数', '5章'],
+      ['検出バグ原因数', '検出したバグを根本原因ごとに数えた数', '5章'],
+      ['発生不具合密度', '稼働後6か月の累計不具合数を規模で割った値。SLOCは件/KSLOC、FPは件/KFP', '2章, 3章'],
+      ['層別', '全開発種別、新規開発、改良開発、再開発の4区分を、SLOC規模とFP規模それぞれで示す', '5.1, 5.2'],
+      ['抽出条件', '開発5工程が揃っている、開発種別が明確、主開発言語が明確、実効SLOCまたはFPが0より大きい', '5章']
+    ] }
+];
+
+/* ===== 案件チェックの定義 ===== */
+var FIT = [
+  { id: 'type', label: '開発種別', options: [
+    { v: 'maint', t: '改修・保守(新規部分が約10%未満)', s: 'ok', pct: 51.5, ref: '改良開発', msg: '最も件数の多い区分です。拡張と合算した「改良開発」の値を参照します。' },
+    { v: 'new', t: '新規開発', s: 'ok', pct: 29.1, ref: '新規開発', msg: '「新規開発」の区分をそのまま参照できます。' },
+    { v: 'ext', t: '拡張(新規部分が約10〜90%)', s: 'ok', pct: 8.3, ref: '改良開発', msg: '改修・保守と合算した「改良開発」の値を参照します。' },
+    { v: 'custom', t: 'パッケージや既存資産のカスタマイズ(ソース変更あり)', s: 'warn', pct: null, ref: '改良開発', msg: '「パッケージ利用開発」はソースを変更しない開発を指すため、該当しません。新規部分の比率で改修・保守か拡張とみなし、「改良開発」を参照するのが最も近い読み方です(資料の定義からの解釈)。' },
+    { v: 'redo', t: '再開発(機能を変えない作り直し)', s: 'warn', pct: 7.2, ref: '再開発', msg: '「再開発」の区分はありますが件数が少なく、特にFP規模の表はデータが限られます。' },
+    { v: 'pkg', t: 'パッケージ利用開発(ソース変更なし)', s: 'ng', pct: 3.2, ref: null, msg: '直近6年で48件だけです。白書2018-2019では件数不足で分析対象から外されています。' },
+    { v: 'oss', t: 'OSSを含む流用開発', s: 'ng', pct: 0.7, ref: null, msg: '直近6年で10件だけです。白書2018-2019では件数不足で分析対象から外されています。' }
+  ] },
+  { id: 'lifecycle', label: 'ライフサイクルモデル', options: [
+    { v: 'wf', t: 'ウォーターフォール', s: 'ok', pct: 97.2, msg: '母集団のほぼすべてがこの型です。' },
+    { v: 'iter', t: '反復型', s: 'ng', pct: 2.1, msg: '直近6年で29件だけで、基準値としては使えません。' },
+    { v: 'agile', t: 'アジャイル', s: 'ng', pct: null, msg: '選択肢に独立した区分がありません。反復型かその他に含まれると考えられますが、どちらもごく少数です。' },
+    { v: 'other', t: 'その他', s: 'ng', pct: 0.7, msg: '直近6年で9件だけです。' }
+  ] },
+  { id: 'form', label: '契約・開発の形態', options: [
+    { v: 'contract', t: '受託開発', s: 'ok', pct: 89.3, msg: '母集団の約9割を占めます。' },
+    { v: 'product', t: '商用パッケージ開発', s: 'warn', pct: 6.9, msg: '割合が小さく、値は受託開発の傾向を強く反映しています。' },
+    { v: 'inhouse', t: 'インハウスユース(自社利用)', s: 'warn', pct: 1.9, msg: '割合がごく小さく、データ提供元もベンダ企業です。' },
+    { v: 'research', t: '実験研究試作', s: 'ng', pct: 0.4, msg: '母集団にほとんど含まれていません。' }
+  ] },
+  { id: 'industry', label: '発注者の業種', options: [
+    { v: 'K', t: '金融・保険業', s: 'ok', pct: 37.2, book: '金融・保険業編', msg: '業種編(別冊)があり、業種に絞った値を参照できます。' },
+    { v: 'F', t: '製造業', s: 'ok', pct: 13.7, book: '製造業編', msg: '業種編(別冊)があり、業種に絞った値を参照できます。' },
+    { v: 'H', t: '情報通信業', s: 'ok', pct: 10.0, book: '情報通信業編', msg: '業種編(別冊)があり、業種に絞った値を参照できます。' },
+    { v: 'R', t: '公務', s: 'ok', pct: 12.6, msg: '業種別の別冊はないため、本編の全業種の値を使います。' },
+    { v: 'J', t: '卸売・小売業', s: 'ok', pct: 6.8, msg: '業種別の別冊はないため、本編の全業種の値を使います。' },
+    { v: 'I', t: '運輸業', s: 'ok', pct: 5.8, msg: '業種別の別冊はないため、本編の全業種の値を使います。' },
+    { v: 'N', t: '医療・福祉', s: 'warn', pct: 3.2, msg: '割合が小さく、全業種の値は件数の多い業種の影響を強く受けます。' },
+    { v: 'G', t: '電気・ガス・熱供給・水道業', s: 'warn', pct: 3.1, msg: '割合が小さく、全業種の値は件数の多い業種の影響を強く受けます。' },
+    { v: 'Q', t: 'サービス業', s: 'warn', pct: 2.1, msg: '割合が小さく、全業種の値は件数の多い業種の影響を強く受けます。' },
+    { v: 'X', t: 'その他の業種', s: 'warn', pct: null, msg: 'それぞれ1%以下で、母集団にほとんど含まれていません。' }
+  ] },
+  { id: 'lang', label: '主開発言語', options: [
+    { v: 'java', t: 'Java', s: 'ok', pct: 42.4, msg: '最も多い言語です。' },
+    { v: 'cobol', t: 'COBOL', s: 'ok', pct: 16.3, msg: '2番目に多い言語です。' },
+    { v: 'vbnet', t: 'VB.NET', s: 'ok', pct: 9.3, msg: '上位5言語に入っています。' },
+    { v: 'cs', t: 'C#', s: 'ok', pct: 7.6, msg: '上位5言語に入っています。言語別に層別すると件数は限られます。' },
+    { v: 'c', t: 'C', s: 'warn', pct: 5.6, msg: '上位5言語の中で最も少なく、言語別の値は件数が限られます。' },
+    { v: 'cpp', t: 'C++', s: 'warn', pct: null, msg: '上位5言語に入っていません。組込み白書はC言語とC++を扱いますが、対象は組込み製品です。' },
+    { v: 'other', t: 'その他、複数言語が混在', s: 'warn', pct: null, msg: '上位5言語以外は合わせて約19%です。分析対象は主開発言語が明確なプロジェクトに限られます。' }
+  ] },
+  { id: 'systype', label: 'システム種別', options: [
+    { v: 'app', t: '業務アプリケーション', s: 'ok', pct: 95.5, msg: '母集団のほぼすべてがアプリケーションソフトです。' },
+    { v: 'mw', t: 'ミドルウェア、OSなどのシステムソフト', s: 'warn', pct: 2.4, msg: '割合がごく小さく、値はアプリケーション開発の傾向を反映しています。' },
+    { v: 'tool', t: 'ツール類', s: 'warn', pct: 1.4, msg: '割合がごく小さく、値はアプリケーション開発の傾向を反映しています。' },
+    { v: 'emb', t: '組込みソフトウェア', s: 'ng', pct: null, emb: true, msg: '分析データ集の対象ではありません。別の母集団である「組込みソフトウェア開発データ白書」を参照してください。' }
+  ] },
+  { id: 'measure', label: '規模の測り方', options: [
+    { v: 'sloc', t: 'SLOC(行数)', s: 'ok', pct: 78.7, msg: '実効SLOCの実績値は累計3,698件あり、最もデータの厚い尺度です。コメント行と空行を除いて数えます。' },
+    { v: 'both', t: 'FPとSLOCの両方', s: 'ok', pct: 10.9, msg: '両方の表を参照できます。' },
+    { v: 'fp', t: 'FP(ファンクションポイント)', s: 'warn', pct: 10.4, msg: 'FPの実績値は累計1,623件で、SLOCより少なめです。層別すると件数が小さくなる表があります(例:新規開発のFP発生不具合密度は36件)。' },
+    { v: 'none', t: '規模を計測していない', s: 'ng', pct: null, msg: '規模あたりのテストケース密度や不具合密度を計算できません。' }
+  ] },
+  { id: 'process', label: '実施する工程', options: [
+    { v: 'all', t: '基本設計から総合テスト(ベンダ確認)まで', s: 'ok', pct: null, msg: '分析対象の条件(開発5工程が揃っている)を満たします。' },
+    { v: 'part', t: '一部の工程だけを担当', s: 'warn', pct: null, msg: '分析対象は開発5工程が揃ったプロジェクトです。工程別の値を参照する場合も、母集団は5工程すべてを実施したプロジェクトである点に注意してください。' }
+  ] }
+];
+
+/* ===== 結合テストの基準値(分析データ集2022) =====
+   値の並び: N, 最小, P25, 中央, P75, 最大, 平均, 標準偏差。原典の桁のまま文字列で持つ。
+   it=結合テスト, st=総合テスト(ベンダ確認) / tc=テストケース, bp=検出バグ現象数, bc=検出バグ原因数 */
+var BENCH = {
+  sloc: {
+    all: { table: '表5-1-1',
+      itc: ['665','0.0','22.2','51.7','120.1','100,000.0','484.9','4,821.2'],
+      stc: ['620','0.0','6.4','16.0','40.7','219,000.0','653.9','9,799.1'],
+      ibp: ['507','0.000','0.468','1.111','2.402','7,846.154','22.866','353.638'],
+      sbp: ['475','0.000','0.051','0.197','0.639','1,000.000','6.049','63.473'],
+      ibc: ['389','0.000','0.373','1.042','1.957','7,846.154','26.351','402.398'],
+      sbc: ['376','0.000','0.063','0.246','0.675','1,000.000','6.783','70.668'] },
+    'new': { table: '表5-1-2',
+      itc: ['209','0.14','17.84','37.63','79.84','37,310.81','258.33','2,584.88'],
+      stc: ['182','0.25','4.69','9.41','21.57','8,418.92','75.95','640.51'],
+      ibp: ['156','0.000','0.650','1.565','2.613','567.568','7.764','52.154'],
+      sbp: ['141','0.000','0.092','0.282','0.829','162.162','2.395','15.798'],
+      ibc: ['100','0.039','0.510','1.154','1.946','28.771','1.874','3.224'],
+      sbc: ['92','0.000','0.100','0.269','0.589','4.426','0.490','0.676'] },
+    imp: { table: '表5-1-3',
+      itc: ['393','0.03','29.52','67.91','159.51','100,000.00','661.59','5,976.69'],
+      stc: ['378','0.01','8.54','24.84','56.75','219,000.00','1,026.89','12,534.04'],
+      ibp: ['296','0.000','0.382','0.976','2.133','7,846.154','34.721','461.232'],
+      sbp: ['281','0.000','0.034','0.164','0.624','1,000.000','8.945','81.695'],
+      ibc: ['263','0.000','0.328','0.996','1.982','7,846.154','38.162','489.244'],
+      sbc: ['259','0.000','0.054','0.233','0.724','1,000.000','9.625','85.044'] },
+    redo: { table: '表5-1-4',
+      itc: ['56','0.66','18.53','39.30','71.22','3,166.99','135.47','448.21'],
+      stc: ['54','0.01','4.13','13.45','27.29','550.00','38.22','98.78'],
+      ibp: ['49','0.000','0.540','1.091','2.180','14.811','1.893','2.560'],
+      sbp: ['48','0.000','0.054','0.228','0.368','3.897','0.437','0.725'],
+      ibc: ['22','0.007','0.196','0.593','1.132','7.645','1.046','1.647'],
+      sbc: ['21','0.000','0.052','0.203','0.509','3.897','0.495','0.878'] }
+  },
+  fp: {
+    all: { table: '表5-2-1',
+      itc: ['42','39.0','668.8','1,782.3','3,450.8','13,230.4','3,247.5','3,714.9'],
+      stc: ['38','28.4','252.4','556.9','1,500.0','3,733.0','936.2','961.6'],
+      ibp: ['41','0.0','41.0','91.2','164.1','670.0','127.2','147.6'],
+      sbp: ['37','0.0','10.5','30.1','80.0','570.0','74.2','130.1'],
+      ibc: ['27','0.4','46.0','94.0','135.5','670.0','137.9','171.8'],
+      sbc: ['24','0.3','14.7','34.0','95.3','565.0','92.6','154.7'] },
+    'new': { table: '表5-2-2',
+      itc: ['20','63.7','539.1','1,596.8','2,393.7','6,559.7','1,746.8','1,508.8'],
+      stc: ['18','28.4','107.9','418.7','659.1','3,733.0','580.9','837.2'],
+      ibp: ['19','2.5','36.6','103.2','159.7','338.5','108.7','92.8'],
+      sbp: ['17','0.4','14.8','50.4','104.7','217.1','67.0','62.4'],
+      ibc: ['14','0.4','59.1','107.7','156.4','338.5','120.4','95.9'],
+      sbc: ['12','0.3','13.0','65.2','108.5','217.1','72.5','66.2'] },
+    imp: { table: '表5-2-3',
+      itc: ['17','39.0','950.1','1,807.8','8,914.1','12,587.0','4,480.1','4,517.9'],
+      stc: ['15','67.0','511.1','1,500.0','2,058.1','3,248.5','1,389.0','974.3'],
+      ibp: ['17','0.0','36.6','85.1','137.8','670.0','148.6','207.3'],
+      sbp: ['15','0.0','14.7','23.6','45.2','570.0','98.2','192.5'],
+      ibc: ['12','9.8','37.6','88.2','106.1','670.0','165.4','238.8'],
+      sbc: ['11','4.2','16.4','23.0','45.2','565.0','122.0','219.4'] },
+    redo: { table: '表5-2-4',
+      itc: ['5',null,null,'3,553.9',null,null,null,null],
+      stc: ['5',null,null,'258.5',null,null,null,null],
+      ibp: ['5',null,null,'133.6',null,null,null,null],
+      sbp: ['5',null,null,'10.5',null,null,null,null],
+      ibc: ['1',null,null,null,null,null,null,null],
+      sbc: ['1',null,null,null,null,null,null,null] }
+  }
+};
+var B_SIZES = [{ id: 'sloc', name: 'SLOC規模', unit: 'KSLOC' }, { id: 'fp', name: 'FP規模', unit: 'KFP' }];
+var B_TYPES = [{ id: 'all', name: '全開発種別' }, { id: 'new', name: '新規開発' }, { id: 'imp', name: '改良開発' }, { id: 'redo', name: '再開発' }];
+var B_METRICS = [
+  { k: 'tc', it: 'itc', st: 'stc', name: 'テストケース密度', u: 'ケース' },
+  { k: 'bp', it: 'ibp', st: 'sbp', name: '検出バグ密度(現象数)', u: '件' },
+  { k: 'bc', it: 'ibc', st: 'sbc', name: '検出バグ密度(原因数)', u: '件' }
+];
+
+/* 工程別の比率(開発5工程の合計を1とする)。並びは N, 最小, P25, 中央, P75, 最大, 平均, 標準偏差 */
+var PHASES = ['基本設計', '詳細設計', '製作', '結合テスト', '総合テスト(ベンダ確認)'];
+var PHASE = {
+  'new': {
+    effort: { table: '表A3-3-8', rows: [
+      [270,0.001,0.122,0.165,0.227,0.649,0.182,0.092],
+      [270,0.001,0.119,0.157,0.206,0.884,0.172,0.102],
+      [270,0.003,0.237,0.316,0.397,0.870,0.316,0.132],
+      [270,0.004,0.149,0.201,0.237,0.513,0.199,0.088],
+      [270,0.001,0.068,0.119,0.170,0.589,0.130,0.088]] },
+    period: { table: '表A3-3-5', rows: [
+      [192,0.033,0.147,0.190,0.247,0.542,0.200,0.082],
+      [192,0.026,0.124,0.163,0.206,0.454,0.167,0.068],
+      [192,0.070,0.194,0.244,0.290,0.667,0.254,0.094],
+      [192,0.013,0.133,0.192,0.244,0.527,0.195,0.082],
+      [192,0.012,0.121,0.173,0.231,0.572,0.183,0.088]] } },
+  imp: {
+    effort: { table: '表A3-3-9', rows: [
+      [580,0.000,0.109,0.153,0.211,0.644,0.164,0.085],
+      [580,0.000,0.109,0.152,0.200,0.589,0.161,0.080],
+      [580,0.011,0.212,0.297,0.387,0.818,0.304,0.135],
+      [580,0.012,0.147,0.200,0.262,0.638,0.209,0.098],
+      [580,0.001,0.080,0.142,0.216,0.727,0.163,0.111]] },
+    period: { table: '表A3-3-6', rows: [
+      [378,0.024,0.145,0.200,0.260,0.747,0.208,0.091],
+      [378,0.020,0.129,0.179,0.222,0.502,0.178,0.068],
+      [378,0.024,0.186,0.228,0.287,0.709,0.245,0.096],
+      [378,0.040,0.141,0.193,0.233,0.604,0.195,0.081],
+      [378,0.006,0.106,0.157,0.222,0.759,0.174,0.099]] } },
+  redo: {
+    effort: { table: '表A3-3-10', rows: [
+      [63,0.002,0.078,0.143,0.202,0.301,0.140,0.073],
+      [63,0.016,0.096,0.152,0.200,0.501,0.164,0.095],
+      [63,0.081,0.257,0.314,0.396,0.665,0.326,0.127],
+      [63,0.047,0.152,0.209,0.246,0.455,0.207,0.081],
+      [63,0.018,0.090,0.136,0.209,0.661,0.163,0.115]] },
+    period: { table: '表A3-3-7', rows: [
+      [40,0.054,0.153,0.186,0.227,0.345,0.193,0.061],
+      [40,0.049,0.135,0.174,0.237,0.446,0.187,0.078],
+      [40,0.084,0.238,0.262,0.339,0.590,0.282,0.096],
+      [40,0.047,0.141,0.176,0.195,0.341,0.179,0.057],
+      [40,0.016,0.104,0.143,0.185,0.425,0.158,0.097]] } }
+};
+
+var ZONE_LABEL = { low: 'P25未満(少なめ)', mid: 'P25〜P75(標準的な範囲)', high: 'P75超(多め)' };
+var ZONE_MSG = {
+  'low-low': 'テストもバグ検出も少なめです。テストが足りず、バグを見つけきれていない可能性があります。',
+  'low-mid': 'テストは少なめですが、バグ検出は標準的です。テストを追加すると、さらに見つかる可能性があります。',
+  'low-high': '少ないテストで多くのバグが出ています。品質不良の疑いがあります。追加テストと前工程の見直しを検討してください。',
+  'mid-low': 'テスト量は標準的で、バグ検出は少なめです。品質が良いか、テストの観点が偏っているかのどちらかです。',
+  'mid-mid': 'テスト量、バグ検出とも標準的な範囲です。',
+  'mid-high': 'テスト量は標準的ですが、バグが多めです。設計や単体テストなど前工程の品質を確認してください。',
+  'high-low': '多くテストしてバグは少なめです。品質は良好とみられます。テストの重複がないかも確認できます。',
+  'high-mid': 'テストは多めで、バグ検出は標準的です。',
+  'high-high': '多くテストして多くのバグが出ています。バグが収束しているか、前工程からの流出が多くないかを確認してください。'
+};
+
+function num(s) { return s == null ? null : parseFloat(String(s).replace(/,/g, '')); }
+function benchRow(size, type, key) {
+  var r = BENCH[size][type][key];
+  return { raw: r, n: num(r[0]), min: num(r[1]), p25: num(r[2]), med: num(r[3]), p75: num(r[4]), max: num(r[5]), mean: num(r[6]), sd: num(r[7]) };
+}
+function zoneOf(v, row) {
+  if (v == null || row.p25 == null || row.p75 == null) return null;
+  return v < row.p25 ? 'low' : (v > row.p75 ? 'high' : 'mid');
+}
+/* inp: { size, tc, bp, bc }。sizeはSLOC規模ならKSLOC、FP規模ならFP。未入力はnull */
+function benchEval(size, type, inp) {
+  var denom = (inp.size != null && inp.size > 0) ? (size === 'fp' ? inp.size / 1000 : inp.size) : null;
+  var out = {};
+  B_METRICS.forEach(function (m) {
+    var row = benchRow(size, type, m.it);
+    var v = (denom != null && inp[m.k] != null && inp[m.k] >= 0) ? inp[m.k] / denom : null;
+    out[m.k] = { value: v, zone: zoneOf(v, row) };
+  });
+  out.reading = (out.tc.zone && out.bp.zone) ? ZONE_MSG[out.tc.zone + '-' + out.bp.zone] : null;
+  return out;
+}
+
+var EXAMPLE = { type: 'custom', lifecycle: 'wf', form: 'contract', industry: 'F', lang: 'cs', systype: 'app', measure: 'sloc', process: 'all' };
+var S_LABEL = { ok: '適合', warn: '注意', ng: '対象外' };
+var S_ICON = { ok: '✓', warn: '!', ng: '×' };
+
+/* 判定(DOMに触れない純粋な関数) */
+function judge(sel) {
+  var rows = [], tally = { ok: 0, warn: 0, ng: 0 }, refDiv = null, books = [], emb = false;
+  FIT.forEach(function (ax) {
+    var opt = ax.options.filter(function (o) { return o.v === sel[ax.id]; })[0] || ax.options[0];
+    tally[opt.s]++;
+    if (ax.id === 'type') refDiv = opt.ref;
+    if (opt.book) books.push(opt.book);
+    if (opt.emb) emb = true;
+    rows.push({ axis: ax.label, pick: opt.t, s: opt.s, pct: opt.pct, msg: opt.msg });
+  });
+  var level = tally.ng > 0 ? 'ng' : (tally.warn > 0 ? 'warn' : 'ok');
+  var headline = level === 'ng'
+    ? 'IPAの値は参考にとどめ、自社の実績を主な基準にしてください'
+    : level === 'warn'
+      ? 'IPAの値を目安にできます。注意の付いた項目は補正が必要です'
+      : 'IPAの値をそのまま目安にできます';
+  var doc;
+  if (emb) {
+    doc = '組込みソフトウェア開発データ白書';
+  } else {
+    doc = '分析データ集2022 本編';
+    if (books.length) doc += '、' + books.join('、');
+  }
+  return {
+    level: level, headline: headline, tally: tally, rows: rows,
+    refDiv: emb ? '改良(派生)開発が中心(組込み白書の区分)' : (refDiv || '該当する区分なし'),
+    doc: doc,
+    benchType: emb ? null : (refDiv === '新規開発' ? 'new' : refDiv === '改良開発' ? 'imp' : refDiv === '再開発' ? 'redo' : 'all'),
+    benchSize: sel.measure === 'fp' ? 'fp' : 'sloc'
+  };
+}
+
+function summaryText(r) {
+  var lines = ['【IPA定量指標 案件チェック】', '総合:' + r.headline, '参照する区分:' + r.refDiv, '参照する資料:' + r.doc, ''];
+  r.rows.forEach(function (x) {
+    lines.push('・' + x.axis + ':' + x.pick + ' → ' + S_LABEL[x.s] + (x.pct != null ? '(母集団の' + x.pct.toFixed(1) + '%)' : ''));
+    lines.push('  ' + x.msg);
+  });
+  return lines.join('\n');
+}
+
+/* ===== 画面 ===== */
+if (typeof document !== 'undefined') (function () {
+  var $ = function (id) { return document.getElementById(id); };
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+  function pctText(p) { return p.toFixed(1) + '%'; }
+  function fmt(n) { return n.toLocaleString('ja-JP'); }
+
+  var state = { group: 'all', q: '' };
+
+  /* 全体像 */
+  var STRIPS = [
+    { lbl: 'ウォーターフォール', pct: 97.2, big: '97.2%', src: '開発ライフサイクルモデル。直近6年1,377件のうち1,339件' },
+    { lbl: '受託開発', pct: 89.3, big: '89.3%', src: '開発プロジェクトの形態。白書2018-2019の値で、2022年版でも約89%' },
+    { lbl: 'アプリケーションソフト', pct: 95.5, big: '95.5%', src: 'システム種別。ミドルウェアやOSは2.4%' }
+  ];
+  STRIPS.forEach(function (s) {
+    var d = el('div');
+    var h = el('div', 'strip-head');
+    h.appendChild(el('span', 'lbl', s.lbl));
+    h.appendChild(el('span', 'big', s.big));
+    var t = el('div', 'strip-track');
+    var f = el('div', 'strip-fill'); f.style.width = s.pct + '%';
+    t.appendChild(f);
+    d.appendChild(h); d.appendChild(t); d.appendChild(el('div', 'strip-src', s.src));
+    $('strips').appendChild(d);
+  });
+
+  GROUPS.forEach(function (g) {
+    var li = el('li');
+    var b = el('button'); b.type = 'button';
+    b.appendChild(el('span', 't', g.name));
+    b.appendChild(el('span', 'd', g.desc));
+    b.appendChild(el('span', 'go', '→'));
+    b.addEventListener('click', function () {
+      state.group = g.id; state.q = ''; $('q').value = '';
+      renderChips(); renderAxes();
+      location.hash = 'axes';
+      window.scrollTo(0, 0);
+    });
+    li.appendChild(b);
+    $('index').appendChild(li);
+  });
+
+  /* 分類軸 */
+  function renderChips() {
+    var box = $('chips'); box.textContent = '';
+    [{ id: 'all', name: 'すべて' }].concat(GROUPS).forEach(function (g) {
+      var c = el('button', 'chip', g.name); c.type = 'button';
+      c.setAttribute('aria-pressed', String(state.group === g.id));
+      c.addEventListener('click', function () { state.group = g.id; renderChips(); renderAxes(); });
+      box.appendChild(c);
+    });
+  }
+
+  function hit(text, q) { return String(text || '').toLowerCase().indexOf(q) !== -1; }
+
+  function barRow(it) {
+    var open = it.def || it.count != null;
+    var row = el(open ? 'details' : 'div', 'row');
+    var head = el(open ? 'summary' : 'div');
+    var rh = el('div', 'row-head');
+    var nm = el('span', 'nm', it.name);
+    if (it.tag) nm.appendChild(el('span', 'tag', it.tag));
+    rh.appendChild(nm);
+    rh.appendChild(el('span', 'val', pctText(it.pct)));
+    rh.appendChild(el('span', 'caret', open ? '›' : ''));
+    var tr = el('div', 'track');
+    var f = el('div', 'fill'); f.style.width = it.pct + '%';
+    tr.appendChild(f);
+    head.appendChild(rh); head.appendChild(tr);
+    row.appendChild(head);
+    if (open) {
+      var body = el('div', 'row-body');
+      if (it.count != null) {
+        var c = el('div'); c.appendChild(document.createTextNode('件数 '));
+        c.appendChild(el('span', 'num', fmt(it.count) + '件'));
+        body.appendChild(c);
+      }
+      if (it.def) body.appendChild(el('div', null, it.def));
+      row.appendChild(body);
+    }
+    return row;
+  }
+
+  function renderAxis(ax, q) {
+    var card = el('article', 'axis');
+    var head = el('div', 'axis-head');
+    head.appendChild(el('h2', null, ax.title));
+    var meta = el('div', 'axis-meta');
+    if (ax.ed) meta.appendChild(el('span', 'ed', ax.ed));
+    if (ax.ref) meta.appendChild(el('span', null, ax.ref));
+    if (ax.n) meta.appendChild(el('span', null, 'N=' + fmt(ax.n)));
+    if (meta.childNodes.length) head.appendChild(meta);
+    card.appendChild(head);
+
+    var body = el('div', 'axis-body');
+    var titleHit = !q || hit(ax.title, q) || hit(ax.note, q);
+    var shown = 0;
+
+    if (ax.kind === 'bars') {
+      ax.items.forEach(function (it) {
+        if (titleHit || hit(it.name, q) || hit(it.def, q) || hit(it.tag, q)) { body.appendChild(barRow(it)); shown++; }
+      });
+      if (shown) {
+        var sc = el('div', 'scale');
+        sc.appendChild(el('span', null, '0%')); sc.appendChild(el('span', null, '50%')); sc.appendChild(el('span', null, '100%'));
+        body.appendChild(sc);
+      }
+    } else if (ax.kind === 'table') {
+      var rows = ax.rows.filter(function (r) { return titleHit || r.some(function (c) { return hit(c, q); }); });
+      shown = rows.length;
+      if (shown) {
+        var w = el('div', 'tbl-wrap'), t = el('table'), th = el('tr');
+        ax.cols.forEach(function (c) { th.appendChild(el('th', null, c)); });
+        var thead = el('thead'); thead.appendChild(th); t.appendChild(thead);
+        var tb = el('tbody');
+        rows.forEach(function (r) {
+          var tr = el('tr');
+          r.forEach(function (c) { tr.appendChild(el('td', null, c)); });
+          tb.appendChild(tr);
+        });
+        t.appendChild(tb); w.appendChild(t); body.appendChild(w);
+      }
+    } else if (ax.kind === 'cards') {
+      ax.cards.forEach(function (c) {
+        if (titleHit || hit(c.name, q) || hit(c.text, q) || hit(c.tag, q)) {
+          var d = el('div', 'src-card');
+          var h = el('h3', null, c.name);
+          if (c.tag) h.appendChild(el('span', 'tag', c.tag));
+          d.appendChild(h);
+          d.appendChild(el('p', 'small muted', c.text));
+          body.appendChild(d); shown++;
+        }
+      });
+    }
+    if (!shown) return null;
+    card.appendChild(body);
+    if (ax.note) card.appendChild(el('div', 'axis-note', ax.note));
+    return card;
+  }
+
+  function renderAxes() {
+    var box = $('axes'); box.textContent = '';
+    var q = state.q.trim().toLowerCase();
+    var n = 0;
+    AXES.forEach(function (ax) {
+      if (state.group !== 'all' && ax.group !== state.group) return;
+      var card = renderAxis(ax, q);
+      if (card) { box.appendChild(card); n++; }
+    });
+    if (!n) {
+      box.appendChild(el('div', 'empty', '該当する分類軸がありません。別の語にするか、グループを「すべて」に戻してください。'));
+    }
+    $('count').textContent = n + '件の分類軸を表示中' + (q ? '(「' + state.q.trim() + '」で絞り込み)' : '');
+  }
+
+  $('q').addEventListener('input', function (e) { state.q = e.target.value; renderAxes(); });
+
+  /* 案件チェック */
+  var KEY = 'ipa-scope-fit-v1';
+  var sel = {};
+  function load() {
+    var saved = null;
+    try { saved = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { saved = null; }
+    FIT.forEach(function (ax) {
+      var v = saved && saved[ax.id];
+      var ok = ax.options.some(function (o) { return o.v === v; });
+      sel[ax.id] = ok ? v : EXAMPLE[ax.id];
+    });
+  }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(sel)); } catch (e) { /* 保存できなくても動作する */ } }
+
+  function buildForm() {
+    var form = $('form'); form.textContent = '';
+    FIT.forEach(function (ax) {
+      var f = el('div', 'field');
+      var lb = el('label', null, ax.label); lb.htmlFor = 'f-' + ax.id;
+      var s = el('select'); s.id = 'f-' + ax.id;
+      ax.options.forEach(function (o) {
+        var op = el('option', null, o.t); op.value = o.v; s.appendChild(op);
+      });
+      s.value = sel[ax.id];
+      s.addEventListener('change', function () { sel[ax.id] = s.value; save(); renderFit(); });
+      f.appendChild(lb); f.appendChild(s); form.appendChild(f);
+    });
+    form.addEventListener('submit', function (e) { e.preventDefault(); });
+  }
+
+  function pill(s, text) {
+    var p = el('span', 'pill'); p.setAttribute('data-s', s);
+    var ic = el('span', 'ic', S_ICON[s]); ic.setAttribute('aria-hidden', 'true');
+    p.appendChild(ic); p.appendChild(document.createTextNode(text));
+    return p;
+  }
+
+  var last = null;
+  function renderFit() {
+    var r = judge(sel); last = r;
+    var v = $('verdict'); v.textContent = ''; v.setAttribute('data-s', r.level);
+    v.appendChild(el('h2', null, r.headline));
+    var tl = el('div', 'tally');
+    ['ok', 'warn', 'ng'].forEach(function (s) { tl.appendChild(pill(s, S_LABEL[s] + ' ' + r.tally[s])); });
+    v.appendChild(tl);
+    var kv = el('dl', 'kv');
+    kv.appendChild(el('dt', null, '参照する区分')); kv.appendChild(el('dd', null, r.refDiv));
+    kv.appendChild(el('dt', null, '参照する資料')); kv.appendChild(el('dd', null, r.doc));
+    v.appendChild(kv);
+    if (r.benchType) {
+      var go = el('button', 'btn ghost', 'この区分の結合テスト基準値を見る'); go.type = 'button';
+      go.style.alignSelf = 'flex-start';
+      go.addEventListener('click', function () {
+        bstate.type = r.benchType; bstate.size = r.benchSize; saveBench(); renderBench();
+        location.hash = 'bench'; window.scrollTo(0, 0);
+      });
+      v.appendChild(go);
+    }
+
+    var box = $('results'); box.textContent = '';
+    r.rows.forEach(function (x) {
+      var d = el('div', 'res');
+      var h = el('div', 'res-head');
+      h.appendChild(el('span', 'ax', x.axis));
+      h.appendChild(el('span', 'pick', x.pick));
+      h.appendChild(pill(x.s, S_LABEL[x.s]));
+      d.appendChild(h);
+      if (x.pct != null) {
+        var sh = el('div', 'share'); sh.appendChild(document.createTextNode('母集団に占める割合 '));
+        sh.appendChild(el('span', 'num', pctText(x.pct)));
+        d.appendChild(sh);
+      }
+      d.appendChild(el('div', 'msg', x.msg));
+      box.appendChild(d);
+    });
+  }
+
+  $('copy').addEventListener('click', function () {
+    var t = $('toast');
+    if (!last) return;
+    var text = summaryText(last);
+    try {
+      navigator.clipboard.writeText(text).then(
+        function () { t.textContent = 'コピーしました'; },
+        function () { t.textContent = 'コピーできませんでした。結果を選択して手動でコピーしてください'; }
+      );
+    } catch (e) { t.textContent = 'コピーできませんでした。結果を選択して手動でコピーしてください'; }
+  });
+  $('reset').addEventListener('click', function () {
+    FIT.forEach(function (ax) { sel[ax.id] = EXAMPLE[ax.id]; $('f-' + ax.id).value = sel[ax.id]; });
+    save(); renderFit(); $('toast').textContent = '入力例に戻しました';
+  });
+
+  /* 基準値 */
+  var BKEY = 'ipa-scope-bench-v1';
+  var bstate = { size: 'sloc', type: 'imp', inp: { size: '', tc: '', bp: '', bc: '' } };
+  (function () {
+    var s = null;
+    try { s = JSON.parse(localStorage.getItem(BKEY) || 'null'); } catch (e) { s = null; }
+    if (s && BENCH[s.size] && BENCH[s.size][s.type]) {
+      bstate.size = s.size; bstate.type = s.type;
+      if (s.inp) ['size', 'tc', 'bp', 'bc'].forEach(function (k) { if (typeof s.inp[k] === 'string') bstate.inp[k] = s.inp[k]; });
+    }
+  })();
+  function saveBench() { try { localStorage.setItem(BKEY, JSON.stringify(bstate)); } catch (e) { /* 保存できなくても動作する */ } }
+  function nameOf(list, id) { return list.filter(function (x) { return x.id === id; })[0]; }
+  function dash(s) { return s == null ? '値なし' : s; }
+  function fmtVal(v, sizeId, k) {
+    var d = sizeId === 'sloc' ? (k === 'tc' ? 1 : 3) : 1;
+    return v.toLocaleString('ja-JP', { minimumFractionDigits: d, maximumFractionDigits: d });
+  }
+  function pc(x) { return (x * 100).toFixed(1) + '%'; }
+  function inpNum(s) { var v = parseFloat(s); return (s === '' || isNaN(v)) ? null : v; }
+
+  function segs(boxId, list, cur, onPick) {
+    var box = $(boxId); box.textContent = '';
+    list.forEach(function (x) {
+      var c = el('button', 'chip', x.name); c.type = 'button';
+      c.setAttribute('aria-pressed', String(cur === x.id));
+      c.addEventListener('click', function () { onPick(x.id); });
+      box.appendChild(c);
+    });
+  }
+
+  function statTable(rowsDef, sizeId, typeId, unit) {
+    var t = el('table'), thead = el('thead'), hr = el('tr');
+    ['指標', 'N', 'P25', '中央', 'P75', '最小', '最大', '平均', '標準偏差'].forEach(function (c, i) { hr.appendChild(el('th', i ? 'n' : null, c)); });
+    thead.appendChild(hr); t.appendChild(thead);
+    var tb = el('tbody');
+    rowsDef.forEach(function (d) {
+      var r = BENCH[sizeId][typeId][d.key], tr = el('tr');
+      tr.appendChild(el('td', null, d.name + ' [' + d.u + '/' + unit + ']'));
+      [0, 2, 3, 4, 1, 5, 6, 7].forEach(function (i) { tr.appendChild(el('td', 'n', r[i] == null ? '―' : r[i])); });
+      tb.appendChild(tr);
+    });
+    t.appendChild(tb);
+    return t;
+  }
+
+  function renderBench() {
+    var sz = nameOf(B_SIZES, bstate.size), ty = nameOf(B_TYPES, bstate.type);
+    var set = BENCH[bstate.size][bstate.type];
+    segs('b-size', B_SIZES, bstate.size, function (id) { bstate.size = id; saveBench(); renderBench(); });
+    segs('b-type', B_TYPES, bstate.type, function (id) { bstate.type = id; saveBench(); renderBench(); });
+    $('b-meta').textContent = set.table + ' ' + sz.name + 'あたりのテストケース数、検出バグ数(' + ty.name + ')';
+    $('c-size-lbl').textContent = bstate.size === 'sloc' ? '開発規模(KSLOC)' : '開発規模(FP)';
+
+    var inp = { size: inpNum(bstate.inp.size), tc: inpNum(bstate.inp.tc), bp: inpNum(bstate.inp.bp), bc: inpNum(bstate.inp.bc) };
+    var ev = benchEval(bstate.size, bstate.type, inp);
+
+    var rd = $('b-reading'); rd.textContent = '';
+    if (ev.reading) {
+      var box = el('div', 'reading');
+      box.appendChild(el('b', null, '読み方の目安(テスト量とバグ検出の組み合わせ)'));
+      box.appendChild(document.createTextNode(ev.reading));
+      rd.appendChild(box);
+    } else if (inp.size != null && (inp.tc != null || inp.bp != null || inp.bc != null) && set.itc[2] == null) {
+      rd.appendChild(el('div', 'small muted', 'この区分は件数が少なく、P25とP75が公表されていないため、位置の判定はできません。'));
+    }
+
+    var cards = $('b-cards'); cards.textContent = '';
+    B_METRICS.forEach(function (m) {
+      var row = benchRow(bstate.size, bstate.type, m.it), raw = row.raw;
+      var unit = m.u + '/' + sz.unit;
+      var card = el('article', 'bcard');
+      var head = el('div');
+      head.appendChild(el('h2', null, m.name));
+      var meta = el('div', 'axis-meta');
+      meta.appendChild(el('span', 'ed', unit));
+      meta.appendChild(el('span', null, 'N=' + raw[0]));
+      meta.appendChild(el('span', null, set.table));
+      head.appendChild(meta);
+      card.appendChild(head);
+
+      if (row.med == null) {
+        card.appendChild(el('p', 'small muted', '該当するプロジェクトが' + raw[0] + '件だけのため、値は公表されていません。'));
+        cards.appendChild(card);
+        return;
+      }
+
+      var nums = el('div', 'bnums');
+      [['P25', raw[2], ''], ['中央値', raw[3], 'mid'], ['P75', raw[4], '']].forEach(function (x) {
+        var d = el('div', x[2]);
+        d.appendChild(el('span', 'k', x[0]));
+        d.appendChild(el('span', 'v', x[1] == null ? '―' : x[1]));
+        nums.appendChild(d);
+      });
+      card.appendChild(nums);
+
+      var v = ev[m.k].value;
+      var top = Math.max(row.p75 != null ? row.p75 : row.med, v != null ? v : 0) * 1.25;
+      var pos = function (x) { return Math.max(0, Math.min(100, x / top * 100)); };
+      var range = el('div', 'range');
+      range.appendChild(el('div', 'r-track'));
+      if (row.p25 != null && row.p75 != null) {
+        var band = el('div', 'r-band');
+        band.style.left = pos(row.p25) + '%'; band.style.width = (pos(row.p75) - pos(row.p25)) + '%';
+        range.appendChild(band);
+      }
+      var med = el('div', 'r-med'); med.style.left = pos(row.med) + '%'; range.appendChild(med);
+      if (v != null) { var you = el('div', 'r-you'); you.style.left = pos(v) + '%'; range.appendChild(you); }
+      range.setAttribute('role', 'img');
+      range.setAttribute('aria-label', m.name + ' P25 ' + dash(raw[2]) + '、中央値 ' + raw[3] + '、P75 ' + dash(raw[4]) + (v != null ? '、入力値 ' + fmtVal(v, bstate.size, m.k) : ''));
+      card.appendChild(range);
+      var axis = el('div', 'r-axis');
+      axis.appendChild(el('span', null, '0'));
+      axis.appendChild(el('span', null, fmtVal(top, bstate.size, m.k)));
+      card.appendChild(axis);
+      card.appendChild(el('div', 'legend', (row.p25 != null ? '緑の帯はP25〜P75、' : '件数が少なく中央値のみの公表です。') + '縦線は中央値' + (v != null ? '、丸は入力値' : '') + 'です。'));
+
+      if (v != null) {
+        var yl = el('div', 'you-line');
+        yl.appendChild(document.createTextNode('入力値 '));
+        yl.appendChild(el('span', 'num', fmtVal(v, bstate.size, m.k)));
+        yl.appendChild(document.createTextNode(' ' + unit));
+        if (ev[m.k].zone) yl.appendChild(el('span', 'tag', ZONE_LABEL[ev[m.k].zone]));
+        card.appendChild(yl);
+      }
+
+      if (raw[1] != null) {
+        var dt = el('details', 'fold small');
+        dt.appendChild(el('summary', null, '最小、最大、平均、標準偏差'));
+        var kv = el('dl', 'kv');
+        [['最小', raw[1]], ['最大', raw[5]], ['平均', raw[6]], ['標準偏差', raw[7]]].forEach(function (x) {
+          kv.appendChild(el('dt', null, x[0])); var dd = el('dd', 'num', x[1]); dd.style.fontWeight = '400'; kv.appendChild(dd);
+        });
+        dt.appendChild(kv);
+        card.appendChild(dt);
+      }
+      cards.appendChild(card);
+    });
+
+    var st = $('b-st'); st.textContent = '';
+    st.appendChild(statTable(B_METRICS.map(function (m) { return { key: m.st, name: m.name, u: m.u }; }), bstate.size, bstate.type, sz.unit));
+
+    /* 工程別の比率 */
+    var ph = $('b-phase'); ph.textContent = '';
+    var t = el('table'), thead = el('thead'), hr = el('tr');
+    ['開発種別', '工数の割合', '工期の割合'].forEach(function (c, i) { hr.appendChild(el('th', i ? 'n' : null, c)); });
+    thead.appendChild(hr); t.appendChild(thead);
+    var tb = el('tbody');
+    [['new', '新規開発'], ['imp', '改良開発'], ['redo', '再開発']].forEach(function (x) {
+      var e = PHASE[x[0]].effort.rows[3], p = PHASE[x[0]].period.rows[3], tr = el('tr');
+      if (bstate.type === x[0]) tr.className = 'on';
+      tr.appendChild(el('td', null, x[1]));
+      [e, p].forEach(function (r) {
+        var td = el('td', 'n');
+        var big = el('div', null, '中央値 ' + pc(r[3])); big.style.fontWeight = '700';
+        td.appendChild(big);
+        td.appendChild(el('div', 'muted', pc(r[2]) + '〜' + pc(r[4])));
+        td.appendChild(el('div', 'muted', 'N=' + r[0]));
+        tr.appendChild(td);
+      });
+      tb.appendChild(tr);
+    });
+    t.appendChild(tb); ph.appendChild(t);
+
+    var pa = $('b-phase-all'); pa.textContent = '';
+    [['effort', '工数の割合(中央値)'], ['period', '工期の割合(中央値)']].forEach(function (kind) {
+      var t2 = el('table'), th2 = el('thead'), hr2 = el('tr');
+      [kind[1], '新規開発', '改良開発', '再開発'].forEach(function (c, i) { hr2.appendChild(el('th', i ? 'n' : null, c)); });
+      th2.appendChild(hr2); t2.appendChild(th2);
+      var tb2 = el('tbody');
+      PHASES.forEach(function (name, i) {
+        var tr = el('tr'); if (i === 3) tr.className = 'on';
+        tr.appendChild(el('td', null, name));
+        ['new', 'imp', 'redo'].forEach(function (k) { tr.appendChild(el('td', 'n', pc(PHASE[k][kind[0]].rows[i][3]))); });
+        tb2.appendChild(tr);
+      });
+      t2.appendChild(tb2); t2.style.marginBottom = '14px'; pa.appendChild(t2);
+    });
+  }
+
+  [['c-size', 'size'], ['c-tc', 'tc'], ['c-bp', 'bp'], ['c-bc', 'bc']].forEach(function (x) {
+    var e = $(x[0]); e.value = bstate.inp[x[1]];
+    e.addEventListener('input', function () { bstate.inp[x[1]] = e.value; saveBench(); renderBench(); });
+  });
+  $('b-calc').addEventListener('submit', function (e) { e.preventDefault(); });
+
+  /* 表示の切り替え */
+  var VIEWS = ['overview', 'axes', 'bench', 'fit', 'notes'];
+  function route() {
+    var h = (location.hash || '').replace('#', '');
+    var cur = VIEWS.indexOf(h) !== -1 ? h : 'overview';
+    VIEWS.forEach(function (v) { $('view-' + v).hidden = v !== cur; });
+    Array.prototype.forEach.call(document.querySelectorAll('.nav a'), function (a) {
+      if (a.getAttribute('data-view') === cur) a.setAttribute('aria-current', 'page');
+      else a.removeAttribute('aria-current');
+    });
+  }
+  window.addEventListener('hashchange', function () { route(); window.scrollTo(0, 0); });
+
+  load(); buildForm(); renderChips(); renderAxes(); renderBench(); renderFit(); route();
+})();
+</script>
+</body>
+</html>
